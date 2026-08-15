@@ -7,7 +7,32 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local CurrentCamera = Workspace.CurrentCamera
 
-local Library = {}
+local Library = setmetatable({}, {
+    __newindex = function(t, k, v)
+        if k == "Translations" and type(v) == "table" then
+            local internal = rawget(t, "_TranslationsData")
+            if not internal then
+                internal = {}
+                rawset(t, "_TranslationsData", internal)
+            end
+            for key, entry in pairs(v) do
+                internal[key] = entry
+            end
+            local refresh = rawget(t, "_RefreshLanguage")
+            if refresh then
+                refresh()
+            end
+        else
+            rawset(t, k, v)
+        end
+    end,
+    __index = function(t, k)
+        if k == "Translations" then
+            return rawget(t, "_TranslationsData")
+        end
+        return nil
+    end,
+})
 Library.Translations = {}
 
 local FallbackFont = Font.new("rbxasset://fonts/families/GothamSSm.json")
@@ -862,6 +887,26 @@ end
 
 function Library:AddTranslation(key, translations)
     Library.Translations[key] = translations
+    local refresh = rawget(Library, "_RefreshLanguage")
+    if refresh then
+        refresh()
+    end
+end
+
+function Library:GetTranslation(key)
+    local entry = Library.Translations[key]
+    if entry then
+        return entry[CurrentLanguage] or entry["EN"] or key
+    end
+    return key
+end
+
+function Library:ForceLanguage(langCode)
+    CurrentLanguage = langCode
+    ApplyLanguage(langCode)
+    pcall(function()
+        ConfigData.Language = langCode
+    end)
 end
 
 local function RegisterLocale(instance, key, isUpper)
@@ -885,6 +930,10 @@ local function ApplyLanguage(langCode)
         end
     end
 end
+
+rawset(Library, "_RefreshLanguage", function()
+    ApplyLanguage(CurrentLanguage)
+end)
 
 local function EnsureConfigFolder()
     pcall(function()
@@ -1058,6 +1107,8 @@ function Library:CreateWindow(config)
     local themeDefault = ConfigData.Theme or config.Theme or "Midnight"
     local fontDefault = ConfigData.Font or "Gotham"
     local languageDefault = ConfigData.Language or config.Language or "EN"
+    CurrentLanguage = languageDefault
+    ApplyLanguage(CurrentLanguage)
     local profileLook = ConfigData.ProfileLook ~= nil and ConfigData.ProfileLook or (config.Look ~= false)
     local floatingIcon = ConfigData.FloatingIcon or config.Logo or "rbxassetid://83542549106889"
     local profileEnabled = ConfigData.ProfileEnabled ~= nil and ConfigData.ProfileEnabled or true
@@ -2762,6 +2813,18 @@ function Library:CreateWindow(config)
                     TabPage.ScrollingEnabled = true
                 end
             end)
+            ValueBox.FocusLost:Connect(function(enterPressed)
+                if isLocked then return end
+                local num = tonumber(ValueBox.Text)
+                if num then
+                    num = math.round(num / rounding) * rounding
+                    num = math.clamp(num, min, max)
+                    updateSliderVisual(num)
+                    callback(num)
+                else
+                    ValueBox.Text = tostring(default)
+                end
+            end)
         end
 
         function Elements:Dropdown(dropdownText, options)
@@ -2810,7 +2873,7 @@ function Library:CreateWindow(config)
                         displayStr = table.concat(selectedList, ", ")
                     end
                 else
-                    displayStr = selectedValue ~= "" and selectedValue or "Select Option"
+                    displayStr = selectedValue ~= "" and selectedValue or ""
                 end
 
                 if string.len(displayStr) > 16 then
@@ -3230,7 +3293,7 @@ function Library:CreateWindow(config)
         end
 
         function Elements:SettingsUI()
-            Elements:CreateSection("Custom Theme Settings")
+            Elements:CreateSection("Theme Settings")
 
             local themeNamesList = {}
             for themeName, _ in pairs(Themes) do
@@ -3239,7 +3302,6 @@ function Library:CreateWindow(config)
             table.sort(themeNamesList)
 
             Elements:Dropdown("Select Theme", {
-                Description = "เลือกธีม UI",
                 Values = themeNamesList,
                 Default = table.find(themeNamesList, CurrentThemeName) or 1,
                 Multi = false,
@@ -3251,7 +3313,6 @@ function Library:CreateWindow(config)
             })
 
             Elements:Slider("UI Transparency", {
-                Description = "ความโปร่งใส UI",
                 Min = 0,
                 Max = 100,
                 Default = math.round(CurrentTransparency * 100),
@@ -3267,7 +3328,6 @@ function Library:CreateWindow(config)
             Elements:CreateSection("Size Settings")
             
             Elements:Slider("Width Size", {
-                Description = "ปรับขนาดความกว้าง UI",
                 Min = 400,
                 Max = 1000,
                 Default = customWidth,
@@ -3284,7 +3344,6 @@ function Library:CreateWindow(config)
             })
             
             Elements:Slider("Height Size", {
-                Description = "ปรับขนาดความสูง UI",
                 Min = 300,
                 Max = 800,
                 Default = customHeight,
@@ -3317,7 +3376,7 @@ function Library:CreateWindow(config)
             })
 
             Elements:Input({
-                Title = "Change Hub Image",
+                Title = "Hub Image",
                 Placeholder = "rbxassetid://...",
                 Default = hubImageUrl,
                 Callback = function(val, enter)
@@ -3347,7 +3406,6 @@ function Library:CreateWindow(config)
             table.sort(fontNamesList)
 
             Elements:Dropdown("Select Font", {
-                Description = "เลือกฟอนต์ที่ใช้ทั้ง UI",
                 Values = fontNamesList,
                 Default = table.find(fontNamesList, CurrentFontName) or 1,
                 Multi = false,
@@ -3361,7 +3419,6 @@ function Library:CreateWindow(config)
             Elements:CreateSection("Language & Shortcuts")
 
             Elements:Dropdown("Select Language", {
-                Description = "เลือกภาษาที่แสดงผล",
                 Values = {"English", "ไทย"},
                 Default = CurrentLanguage == "TH" and 2 or 1,
                 Multi = false,
@@ -3375,7 +3432,6 @@ function Library:CreateWindow(config)
             
             Elements:Keybind({
                 Title = "Minimize Keybind",
-                Description = "ปุ่มลัดสำหรับย่อหน้าต่าง UI",
                 Default = minimizeKey,
                 Callback = function(newKey)
                     minimizeKey = newKey
