@@ -1526,13 +1526,14 @@ return function(Title, Parent, Collapsible)
 
 	local CollapseIcon = New("TextLabel", {
 		Text = Collapsible ~= false and "▾" or "",
-		TextSize = 14,
+		TextSize = 13,
 		FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal),
 		TextXAlignment = Enum.TextXAlignment.Right,
 		TextYAlignment = Enum.TextYAlignment.Center,
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, -8, 0, 18),
 		Position = UDim2.fromOffset(0, 2),
+		ZIndex = 11,
 		ThemeTag = { TextColor3 = "SubText" },
 	})
 
@@ -1584,7 +1585,7 @@ return function(Title, Parent, Collapsible)
 			Collapsed = not Collapsed
 			local easeOut = TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 			if Collapsed then
-				CollapseIcon.Text = "›"
+				CollapseIcon.Text = "▸"
 				TweenService:Create(Section.Container, easeOut, {Size = UDim2.new(1, 0, 0, 0)}):Play()
 				TweenService:Create(Section.Root, easeOut, {Size = UDim2.new(1, 0, 0, 24)}):Play()
 			else
@@ -1661,9 +1662,13 @@ function TabModule:New(Title, Icon, Parent)
 		New("UICorner", {
 			CornerRadius = UDim.new(0, 6),
 		}),
+		New("UIPadding", {
+			PaddingLeft = UDim.new(0, 8),
+			PaddingRight = UDim.new(0, 8),
+		}),
 		New("TextLabel", {
 			AnchorPoint = Vector2.new(0, 0.5),
-			Position = Icon and UDim2.new(0, 30, 0.5, 0) or UDim2.new(0, 12, 0.5, 0),
+			Position = Icon and UDim2.new(0, 22, 0.5, 0) or UDim2.new(0, 4, 0.5, 0),
 			Text = Title,
 			RichText = true,
 			TextColor3 = Color3.fromRGB(255, 255, 255),
@@ -1676,7 +1681,7 @@ function TabModule:New(Title, Icon, Parent)
 			TextSize = 12,
 			TextXAlignment = "Left",
 			TextYAlignment = "Center",
-			Size = UDim2.new(1, -12, 1, 0),
+			Size = UDim2.new(1, -26, 1, 0),
 			BackgroundTransparency = 1,
 			ThemeTag = {
 				TextColor3 = "Text",
@@ -1685,9 +1690,10 @@ function TabModule:New(Title, Icon, Parent)
 		New("ImageLabel", {
 			AnchorPoint = Vector2.new(0, 0.5),
 			Size = UDim2.fromOffset(16, 16),
-			Position = UDim2.new(0, 8, 0.5, 0),
+			Position = UDim2.new(0, 4, 0.5, 0),
 			BackgroundTransparency = 1,
 			Image = Icon and Icon or nil,
+			Visible = Icon ~= nil,
 			ThemeTag = {
 				ImageColor3 = "Text",
 			},
@@ -1697,6 +1703,8 @@ function TabModule:New(Title, Icon, Parent)
 	local ContainerLayout = New("UIListLayout", {
 		Padding = UDim.new(0, 5),
 		SortOrder = Enum.SortOrder.LayoutOrder,
+		FillDirection = Enum.FillDirection.Vertical,
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
 	})
 
 	Tab.ContainerFrame = New("ScrollingFrame", {
@@ -2138,8 +2146,8 @@ return function(Config)
 	})
 
 	Window.TabHolder = New("ScrollingFrame", {
-		Size = UDim2.new(1, 0, 1, -42),
-		Position = UDim2.fromOffset(0, 42),
+		Size = UDim2.new(1, 0, 1, -40),
+		Position = UDim2.fromOffset(0, 40),
 		BackgroundTransparency = 1,
 		ScrollBarImageTransparency = 1,
 		ScrollBarThickness = 0,
@@ -2148,37 +2156,53 @@ return function(Config)
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 	}, {
 		New("UIListLayout", {
+			Name = "UIListLayout",
 			Padding = UDim.new(0, 4),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+		New("UIPadding", {
+			PaddingTop = UDim.new(0, 2),
+			PaddingBottom = UDim.new(0, 2),
+			PaddingLeft = UDim.new(0, 0),
+			PaddingRight = UDim.new(0, 0),
 		}),
 	})
 
 	local GlobalSearchFrame = New("Frame", {
 		Size = UDim2.new(1, -4, 0, 32),
 		Position = UDim2.fromOffset(2, 4),
-		BackgroundColor3 = Color3.fromRGB(22, 25, 34),
+		ThemeTag = {
+			BackgroundColor3 = "ElementBackground",
+		},
 	}, {
 		New("UICorner", { CornerRadius = UDim.new(0, 7) }),
 		New("UIStroke", {
 			Thickness = 1,
-			Color = Color3.fromRGB(52, 60, 88),
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			ThemeTag = {
+				Color = "InElementBorder",
+			},
 		}),
 		New("ImageLabel", {
 			Size = UDim2.fromOffset(13, 13),
-			Position = UDim2.new(0, 7, 0.5, -6),
+			Position = UDim2.new(0, 8, 0.5, -6),
 			BackgroundTransparency = 1,
 			Image = "rbxassetid://10709790750",
-			ImageColor3 = Color3.fromRGB(110, 125, 165),
+			ThemeTag = {
+				ImageColor3 = "SubText",
+			},
 		}),
 	})
 
 	local GlobalSearchInput = New("TextBox", {
 		Size = UDim2.new(1, -26, 1, 0),
-		Position = UDim2.fromOffset(23, 0),
+		Position = UDim2.fromOffset(24, 0),
 		BackgroundTransparency = 1,
 		PlaceholderText = "ค้นหา...",
-		PlaceholderColor3 = Color3.fromRGB(85, 95, 125),
-		TextColor3 = Color3.fromRGB(210, 218, 238),
+		ThemeTag = {
+			PlaceholderColor3 = "SubText",
+			TextColor3 = "Text",
+		},
 		TextSize = 12,
 		FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -3354,8 +3378,8 @@ function Element:New(Idx, Config)
 	})
 
 	local DropdownScrollFrame = New("ScrollingFrame", {
-		Size = UDim2.new(1, -8, 1, -46),
-		Position = UDim2.fromOffset(4, 40),
+		Size = UDim2.new(1, -6, 1, -44),
+		Position = UDim2.fromOffset(3, 40),
 		BackgroundTransparency = 1,
 		BottomImage = "rbxassetid://6889812791",
 		MidImage = "rbxassetid://6889812721",
@@ -3365,27 +3389,34 @@ function Element:New(Idx, Config)
 		ScrollBarThickness = 3,
 		BorderSizePixel = 0,
 		CanvasSize = UDim2.fromScale(0, 0),
+		ClipsDescendants = true,
 	}, {
 		DropdownListLayout,
 	})
 
 	local SearchBoxFrame = New("Frame", {
-		Size = UDim2.new(1, -10, 0, 28),
-		Position = UDim2.fromOffset(5, 6),
-		BackgroundColor3 = Color3.fromRGB(30, 33, 44),
+		Size = UDim2.new(1, -8, 0, 28),
+		Position = UDim2.fromOffset(4, 6),
+		ThemeTag = {
+			BackgroundColor3 = "ElementBackground",
+		},
 	}, {
 		New("UICorner", { CornerRadius = UDim.new(0, 6) }),
 		New("UIStroke", {
 			Thickness = 1,
-			Color = Color3.fromRGB(60, 68, 95),
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			ThemeTag = {
+				Color = "InElementBorder",
+			},
 		}),
 		New("ImageLabel", {
 			Size = UDim2.fromOffset(13, 13),
 			Position = UDim2.new(0, 7, 0.5, -6),
 			BackgroundTransparency = 1,
 			Image = "rbxassetid://10709790750",
-			ImageColor3 = Color3.fromRGB(130, 140, 170),
+			ThemeTag = {
+				ImageColor3 = "SubText",
+			},
 		}),
 	})
 
@@ -3394,8 +3425,10 @@ function Element:New(Idx, Config)
 		Position = UDim2.fromOffset(24, 0),
 		BackgroundTransparency = 1,
 		PlaceholderText = "ค้นหา...",
-		PlaceholderColor3 = Color3.fromRGB(90, 100, 130),
-		TextColor3 = Color3.fromRGB(220, 225, 240),
+		ThemeTag = {
+			PlaceholderColor3 = "SubText",
+			TextColor3 = "Text",
+		},
 		TextSize = 12,
 		FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -3405,6 +3438,8 @@ function Element:New(Idx, Config)
 
 	local DropdownHolderFrame = New("Frame", {
 		Size = UDim2.fromScale(1, 0.6),
+		ZIndex = 50,
+		ClipsDescendants = true,
 		ThemeTag = {
 			BackgroundColor3 = "DropdownHolder",
 		},
@@ -3427,6 +3462,7 @@ function Element:New(Idx, Config)
 		Size = UDim2.fromOffset(200, 300),
 		Parent = self.Library.GUI,
 		Visible = false,
+		ZIndex = 50,
 	}, {
 		DropdownHolderFrame,
 		New("UISizeConstraint", {
@@ -3461,11 +3497,13 @@ function Element:New(Idx, Config)
 
 	local ListSizeX = 0
 	local function RecalculateListSize()
-		local extraH = 44
+		local extraH = 48
 		if #Dropdown.Values > 8 then
-			DropdownHolderCanvas.Size = UDim2.fromOffset(math.max(ListSizeX, 200), math.min(Camera.ViewportSize.Y / 2, 340))
+			local maxH = math.min(Camera.ViewportSize.Y / 2, 340)
+			DropdownHolderCanvas.Size = UDim2.fromOffset(math.max(ListSizeX, 200), maxH)
 		else
-			DropdownHolderCanvas.Size = UDim2.fromOffset(math.max(ListSizeX, 200), DropdownListLayout.AbsoluteContentSize.Y + extraH)
+			local h = DropdownListLayout.AbsoluteContentSize.Y + extraH
+			DropdownHolderCanvas.Size = UDim2.fromOffset(math.max(ListSizeX, 200), math.max(h, 60))
 		end
 	end
 
@@ -3500,6 +3538,41 @@ function Element:New(Idx, Config)
 	end)
 
 	local ScrollFrame = self.ScrollFrame
+	do
+		local _dsTouchStart = nil
+		local _dsScrolling = false
+		local _DS_THRESHOLD = 10
+		local _dsLastY = 0
+
+		DropdownScrollFrame.InputBegan:Connect(function(Input)
+			if Input.UserInputType == Enum.UserInputType.Touch then
+				_dsTouchStart = Input.Position
+				_dsLastY = DropdownScrollFrame.CanvasPosition.Y
+				_dsScrolling = false
+			end
+		end)
+
+		DropdownScrollFrame.InputChanged:Connect(function(Input)
+			if Input.UserInputType == Enum.UserInputType.Touch and _dsTouchStart then
+				local delta = (Input.Position - _dsTouchStart).Magnitude
+				if delta > _DS_THRESHOLD then
+					_dsScrolling = true
+				end
+				if _dsScrolling then
+					local dy = _dsTouchStart.Y - Input.Position.Y
+					DropdownScrollFrame.CanvasPosition = Vector2.new(0, math.clamp(_dsLastY + dy, 0, math.max(0, DropdownScrollFrame.AbsoluteCanvasSize.Y - DropdownScrollFrame.AbsoluteSize.Y)))
+				end
+			end
+		end)
+
+		DropdownScrollFrame.InputEnded:Connect(function(Input)
+			if Input.UserInputType == Enum.UserInputType.Touch then
+				_dsTouchStart = nil
+				_dsScrolling = false
+			end
+		end)
+	end
+
 	function Dropdown:Open()
 		Dropdown.Opened = true
 		ScrollFrame.ScrollingEnabled = false
@@ -3572,18 +3645,20 @@ function Element:New(Idx, Config)
 
 			Count = Count + 1
 
-			local ButtonSelector = New("Frame", {
-				Size = UDim2.fromOffset(4, 14),
-				BackgroundColor3 = Color3.fromRGB(76, 194, 255),
-				Position = UDim2.fromOffset(-1, 16),
-				AnchorPoint = Vector2.new(0, 0.5),
+			local ButtonSelector = New("TextLabel", {
+				Text = "●",
+				TextSize = 8,
+				FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
+				TextXAlignment = Enum.TextXAlignment.Center,
+				TextYAlignment = Enum.TextYAlignment.Center,
+				Size = UDim2.fromOffset(14, 14),
+				Position = UDim2.new(0, 2, 0.5, -7),
+				AnchorPoint = Vector2.new(0, 0),
+				BackgroundTransparency = 1,
+				TextTransparency = 1,
 				ThemeTag = {
-					BackgroundColor3 = "Accent",
+					TextColor3 = "Accent",
 				},
-			}, {
-				New("UICorner", {
-					CornerRadius = UDim.new(0, 2),
-				}),
 			})
 
 			local ButtonLabel = New("TextLabel", {
@@ -3595,8 +3670,8 @@ function Element:New(Idx, Config)
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 				AutomaticSize = Enum.AutomaticSize.Y,
 				BackgroundTransparency = 1,
-				Size = UDim2.fromScale(1, 1),
-				Position = UDim2.fromOffset(10, 0),
+				Size = UDim2.new(1, -20, 1, 0),
+				Position = UDim2.fromOffset(20, 0),
 				Name = "ButtonLabel",
 				ThemeTag = {
 					TextColor3 = "Text",
@@ -3633,7 +3708,7 @@ function Element:New(Idx, Config)
 			local SelectorSizeMotor = Flipper.SingleMotor.new(6)
 
 			SelectorSizeMotor:onStep(function(value)
-				ButtonSelector.Size = UDim2.new(0, 4, 0, value)
+				ButtonSelector.TextTransparency = value > 8 and 0 or 1
 			end)
 
 			Creator.AddSignal(Button.MouseEnter, function()
@@ -3661,16 +3736,16 @@ function Element:New(Idx, Config)
 				end
 
 				SelectorSizeMotor:setGoal(Flipper.Spring.new(Selected and 14 or 6, { frequency = 6 }))
-				SetSelTransparency(Selected and 0 or 1)
+				ButtonSelector.TextTransparency = Selected and 0 or 1
 			end
 
-			ButtonLabel.InputBegan:Connect(function(Input)
-				if
-					Input.UserInputType == Enum.UserInputType.MouseButton1
-					or Input.UserInputType == Enum.UserInputType.Touch
-				then
-					local Try = not Selected
+			do
+				local _touchStartPos = nil
+				local _isScrolling = false
+				local _THRESHOLD = 10
 
+				local function _selectItem()
+					local Try = not Selected
 					if Dropdown:GetActiveValues() == 1 and not Try and not Config.AllowNull then
 					else
 						if Config.Multi then
@@ -3679,20 +3754,45 @@ function Element:New(Idx, Config)
 						else
 							Selected = Try
 							Dropdown.Value = Selected and Value or nil
-
 							for _, OtherButton in next, Buttons do
 								OtherButton:UpdateButton()
 							end
 						end
-
 						Table:UpdateButton()
 						Dropdown:Display()
-
 						Library:SafeCallback(Dropdown.Callback, Dropdown.Value)
 						Library:SafeCallback(Dropdown.Changed, Dropdown.Value)
 					end
 				end
-			end)
+
+				ButtonLabel.InputBegan:Connect(function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+						_selectItem()
+					elseif Input.UserInputType == Enum.UserInputType.Touch then
+						_touchStartPos = Input.Position
+						_isScrolling = false
+					end
+				end)
+
+				ButtonLabel.InputChanged:Connect(function(Input)
+					if Input.UserInputType == Enum.UserInputType.Touch and _touchStartPos then
+						local delta = (Input.Position - _touchStartPos).Magnitude
+						if delta > _THRESHOLD then
+							_isScrolling = true
+						end
+					end
+				end)
+
+				ButtonLabel.InputEnded:Connect(function(Input)
+					if Input.UserInputType == Enum.UserInputType.Touch then
+						if not _isScrolling and _touchStartPos then
+							_selectItem()
+						end
+						_touchStartPos = nil
+						_isScrolling = false
+					end
+				end)
+			end
 
 			Table:UpdateButton()
 			Dropdown:Display()
@@ -4147,6 +4247,9 @@ function Element:New(Idx, Config)
 
 	local SliderFrame = require(Components.Element)(Config.Title, Config.Description, self.Container, false)
 	SliderFrame.DescLabel.Size = UDim2.new(1, -170, 0, 14)
+	if not Config.Description then
+		SliderFrame.Frame.Size = UDim2.new(1, 0, 0, 38)
+	end
 
 	Slider.SetTitle = SliderFrame.SetTitle
 	Slider.SetDesc = SliderFrame.SetDesc
@@ -4206,7 +4309,7 @@ function Element:New(Idx, Config)
 	local SliderInner = New("Frame", {
 		Size = UDim2.new(1, -66, 0, 4),
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -10, 0.5, 0),
+		Position = UDim2.new(1, -10, 0.5, 6),
 		BackgroundTransparency = 0.4,
 		Parent = SliderFrame.Frame,
 		ThemeTag = {
