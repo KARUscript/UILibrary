@@ -3411,7 +3411,8 @@ function Element:New(Idx, Config)
 		}),
 		New("ImageLabel", {
 			Size = UDim2.fromOffset(13, 13),
-			Position = UDim2.new(0, 7, 0.5, -6),
+			Position = UDim2.new(0, 7, 0.5, 0),
+			AnchorPoint = Vector2.new(0, 0.5),
 			BackgroundTransparency = 1,
 			Image = "rbxassetid://10709790750",
 			ThemeTag = {
@@ -3484,15 +3485,25 @@ function Element:New(Idx, Config)
 	end)
 
 	local function RecalculateListPosition()
-		local Add = 0
-		if Camera.ViewportSize.Y - DropdownInner.AbsolutePosition.Y < DropdownHolderCanvas.AbsoluteSize.Y - 5 then
-			Add = DropdownHolderCanvas.AbsoluteSize.Y
-				- 5
-				- (Camera.ViewportSize.Y - DropdownInner.AbsolutePosition.Y)
-				+ 40
+		local vp = Camera.ViewportSize
+		local canvasW = DropdownHolderCanvas.AbsoluteSize.X
+		local canvasH = DropdownHolderCanvas.AbsoluteSize.Y
+		local btnPos = DropdownInner.AbsolutePosition
+		local btnSz = DropdownInner.AbsoluteSize
+
+		local posX = btnPos.X - 1
+		local posY = btnPos.Y + btnSz.Y + 2
+
+		if posY + canvasH > vp.Y - 4 then
+			posY = btnPos.Y - canvasH - 2
 		end
-		DropdownHolderCanvas.Position =
-			UDim2.fromOffset(DropdownInner.AbsolutePosition.X - 1, DropdownInner.AbsolutePosition.Y - 5 - Add)
+		if posX + canvasW > vp.X - 4 then
+			posX = vp.X - canvasW - 4
+		end
+		if posX < 4 then posX = 4 end
+		if posY < 4 then posY = 4 end
+
+		DropdownHolderCanvas.Position = UDim2.fromOffset(posX, posY)
 	end
 
 	local ListSizeX = 0
@@ -3742,7 +3753,9 @@ function Element:New(Idx, Config)
 			do
 				local _touchStartPos = nil
 				local _isScrolling = false
-				local _THRESHOLD = 10
+				local _touchStartTime = 0
+				local _THRESHOLD = 12
+				local _MAX_TAP_TIME = 0.3
 
 				local function _selectItem()
 					local Try = not Selected
@@ -3770,6 +3783,7 @@ function Element:New(Idx, Config)
 						_selectItem()
 					elseif Input.UserInputType == Enum.UserInputType.Touch then
 						_touchStartPos = Input.Position
+						_touchStartTime = tick()
 						_isScrolling = false
 					end
 				end)
@@ -3785,7 +3799,8 @@ function Element:New(Idx, Config)
 
 				ButtonLabel.InputEnded:Connect(function(Input)
 					if Input.UserInputType == Enum.UserInputType.Touch then
-						if not _isScrolling and _touchStartPos then
+						local elapsed = tick() - _touchStartTime
+						if not _isScrolling and _touchStartPos and elapsed < _MAX_TAP_TIME then
 							_selectItem()
 						end
 						_touchStartPos = nil
