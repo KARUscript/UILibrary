@@ -2172,7 +2172,7 @@ return function(Config)
 		Size = UDim2.new(1, -4, 0, 32),
 		Position = UDim2.fromOffset(2, 4),
 		ThemeTag = {
-			BackgroundColor3 = "ElementBackground",
+			BackgroundColor3 = "Element",
 		},
 	}, {
 		New("UICorner", { CornerRadius = UDim.new(0, 7) }),
@@ -3398,7 +3398,7 @@ function Element:New(Idx, Config)
 		Size = UDim2.new(1, -8, 0, 28),
 		Position = UDim2.fromOffset(4, 6),
 		ThemeTag = {
-			BackgroundColor3 = "ElementBackground",
+			BackgroundColor3 = "Element",
 		},
 	}, {
 		New("UICorner", { CornerRadius = UDim.new(0, 6) }),
